@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="" color-mode="light">
 
   <head>
   <meta charset="utf-8">
@@ -14,7 +14,9 @@
       Myfirst 
       
       
+      |
     
+     Nian&#39;s Blog
   </title>
 
   
@@ -23,85 +25,146 @@
   
 
   <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat|Roboto:400,400italic,600|Roboto+Mono" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
 
   <!-- hexo site css -->
   
+<link rel="stylesheet" href="/css/color-scheme.css">
 <link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
 
-
-  
-
-  
-    
-<link rel="stylesheet" href="/css/post.css">
-
+  <!-- 代码块风格 -->
   
 
   <!-- jquery3.3.1 -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
 
   <!-- fancybox -->
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
   
 <script src="/js/fancybox.js"></script>
 
 
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
 <meta name="generator" content="Hexo 6.2.0"></head>
 
 
   <body>
     <div id="app">
       <div class="header">
-  <a href="/">Nian</a>
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Oranges</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
 </div>
 
 
-      <p class="links">
-  
-    <a title="archives" target="" href="/archives/">
-      <i class="iconfont icon-bookmark"></i>
-    </a>
-  
-    <a title="github" target="_blank" href="https://github.com/L0s1">
-      <i class="iconfont icon-github"></i>
-    </a>
-  
-    <a title="rss" target="_blank" href="/atom.xml">
-      <i class="iconfont icon-rss"></i>
-    </a>
-  
-</p>
+<script src="/js/activeNav.js"></script>
 
 
-      <div class="main">
+
+      <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
 
-<!-- LaTex Display -->
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
-<script>
-  MathJax = {
-    tex: {
-      inlineMath: [['$', '$'], ['\\(', '\\)']]
-    }
-  };
-</script>
 
-<div class="post">
-  <h3 class="date">
-    Jun 07, 2022
-  </h3>
-  <h1>
-    Myfirst
-  </h1>
-  <div class="content markdown-body">
-    <h2 id="code-test"><a href="#code-test" class="headerlink" title="code test"></a>code test</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">//Solidity定义的函数默认为public。设置为私有需添加关键字 private</span><br><span class="line"><span class="keyword">function</span> eatHamburgers(string _name, uint _amount) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//私有函数，这意味着只有我们合约中的其它函数才能够调用这个函数</span><br><span class="line"><span class="keyword">function</span> eatHamburgers(string _name, uint _amount) private &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//return 设置函数的返回值</span><br><span class="line"><span class="keyword">function</span> sayHello() public returns (string) &#123;</span><br><span class="line">  <span class="built_in">return</span> greeting;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//函数修饰符view，意味着函数只能读取数据不能更改数据</span><br><span class="line"><span class="keyword">function</span> sayHello() public view returns (string) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//函数修饰符pure，表明这个函数不访问应用里的数据</span><br><span class="line"><span class="keyword">function</span> _multiply(uint a, uint b) private pure returns (uint) &#123;</span><br><span class="line">  <span class="built_in">return</span> a * b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Myfirst</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-06-07 18:23:56
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h2 id="code-test"><a href="#code-test" class="headerlink" title="code test"></a>code test</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">//Solidity定义的函数默认为public。设置为私有需添加关键字 private</span><br><span class="line"><span class="keyword">function</span> eatHamburgers(string _name, uint _amount) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//私有函数，这意味着只有我们合约中的其它函数才能够调用这个函数</span><br><span class="line"><span class="keyword">function</span> eatHamburgers(string _name, uint _amount) private &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//return 设置函数的返回值</span><br><span class="line"><span class="keyword">function</span> sayHello() public returns (string) &#123;</span><br><span class="line">  <span class="built_in">return</span> greeting;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//函数修饰符view，意味着函数只能读取数据不能更改数据</span><br><span class="line"><span class="keyword">function</span> sayHello() public view returns (string) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//函数修饰符pure，表明这个函数不访问应用里的数据</span><br><span class="line"><span class="keyword">function</span> _multiply(uint a, uint b) private pure returns (uint) &#123;</span><br><span class="line">  <span class="built_in">return</span> a * b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 
 <p>Algoblockstrade(无信息)</p>
@@ -109,25 +172,89 @@
 
 <p>FinanceChainge</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.chainge.finance/</span><br><span class="line">https://chainge.app/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2022/06/07/test/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2022-06-07 18:23:56
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#code-test"><span class="toc-text">code test</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
   </div>
   
     
-      <a id="older" class="blog-nav" href="/2022/06/07/test/">OLDER&nbsp;&gt;</a>
-      
-        
-            
-</div>
-        <div class="footer">
-  
     <div class="footer-more">
       
-        <a target="_blank" rel="noopener" href="https://github.com/L0s1">Copyright © Nian 2022</a>
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2022 Oranges</a>
         
     </div>
   
+    
     <div class="footer-more">
       
-        <a target="_blank" rel="noopener" href="https://hexo.io/">Powered by Hexo</a>
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
         
     </div>
   
@@ -135,7 +262,8 @@
 
       </div>
 
-      <div class="back-to-top hidden">
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
   <a href="javascript: void(0)">
     <i class="iconfont icon-chevronup"></i>
   </a>
@@ -146,8 +274,8 @@
 
 
 
-      
-  <div class="search-icon" id="search-icon">
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
     <a href="javascript: void(0)">
       <i class="iconfont icon-search"></i>
     </a>
@@ -155,24 +283,22 @@
 
   <div class="search-overlay hidden">
     <div class="search-content" tabindex="0">
-      <div class="search-box">
-        <div class="search-title">
-          <!-- <span class="search-icon-input">
-            <a href="javascript: void(0)">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </span> -->
-          
-            <input type="text" class="search-input" id="search-input" placeholder="搜索">
-          
-          <span class="search-close-icon" id="search-close-icon">
-            <a href="javascript: void(0)">
-              <i class="iconfont icon-close"></i>
-            </a>
-          </span>
-        </div>
-        <div class="search-result" id="search-result"></div>
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
       </div>
+      <div class="search-result" id="search-result"></div>
     </div>
   </div>
 
@@ -180,10 +306,10 @@
     var inputArea = document.querySelector("#search-input")
     var searchOverlayArea = document.querySelector(".search-overlay")
 
-    // inputArea.onclick = function() {
-    //   getSearchFile()
-    //   this.onclick = null
-    // }
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
 
     inputArea.onkeydown = function() {
       if(event.keyCode == 13)
@@ -195,8 +321,7 @@
       if (isHidden) {
         searchOverlayArea.classList.remove('hidden')
         document.body.classList.add('hidden')
-        inputArea.focus()
-        getSearchFile()
+        // inputArea.focus()
       } else {
         searchOverlayArea.classList.add('hidden')
         document.body.classList.remove('hidden')
@@ -217,8 +342,7 @@
       'use strict';
       var $input = document.getElementById(search_id);
       var $resultContent = document.getElementById(content_id);
-      $resultContent.innerHTML = "<ul><span class='local-search-empty'><span></ul>";
-      // $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
       $.ajax({
         // 0x01. load xml file
         url: path,
@@ -280,7 +404,7 @@
               }
               // 0x05. show search results
               if (isMatch) {
-                str += "<li><a href='/" + data_url + "' class='search-result-title'><h2>" + orig_data_title + "</h2></a>";
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
                 var content = orig_data_content;
                 if (first_occur >= 0) {
                   // cut out 100 characters
@@ -307,9 +431,9 @@
                     match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
                   });
 
-                  str += "<h3 class=\"search-result-abstract\">" + match_content + "...</h3>"
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
                 }
-                str += "<hr></li>";
+                str += "</li>";
               }
             });
             str += "</ul>";
@@ -322,7 +446,7 @@
         error: function(xhr, status, error) {
           $resultContent.innerHTML = ""
           if (xhr.status === 404) {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/leedom92/hexo-theme-leedom#configuration' target='_black'>configuration</a><span></ul>";
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
           } else {
             $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
           }
@@ -343,6 +467,46 @@
 
 
 
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Myfirst + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F06%2F07%2FMyfirst%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/06/07/Myfirst/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
     </div>
   </body>
 </html>
