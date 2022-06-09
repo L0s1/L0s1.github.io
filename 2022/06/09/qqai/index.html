@@ -11,6 +11,11 @@
   
   <title>
     
+      qqai 
+      
+      
+      |
+    
      Nian&#39;s Blog
   </title>
 
@@ -105,95 +110,105 @@
 
 
       <div class="flex-container">
-        <div class="container index">
-  <div class="post-list">
-    <!-- 遍历渲染文章 -->
-    
-      <div class="post-item" title="caca">
-        <div class="time-m-d">2022-06-09</div>
-        <div class="title">
-          <a href="/2022/06/09/caca/">
-            
-              
-                <span>caca</span>
-              
-            
-          </a>
-        </div>
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">qqai</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-06-09 10:52:51
+        </span>
+        
       </div>
-    
-      <div class="post-item" title="qqai">
-        <div class="time-m-d">2022-06-09</div>
-        <div class="title">
-          <a href="/2022/06/09/qqai/">
-            
-              
-                <span>qqai</span>
-              
-            
-          </a>
-        </div>
+      <div class="markdown-body">
+        
       </div>
+      
+    </div>
     
-      <div class="post-item" title="test_tag">
-        <div class="time-m-d">2022-06-08</div>
-        <div class="title">
-          <a href="/2022/06/08/test-tag/">
-            
-              
-                <span>test_tag</span>
-              
-            
-          </a>
-        </div>
-      </div>
+
     
-      <div class="post-item" title="test_cate">
-        <div class="time-m-d">2022-06-08</div>
-        <div class="title">
-          <a href="/2022/06/08/test-cate/">
-            
-              
-                <span>test_cate</span>
-              
-            
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="Myfirst">
-        <div class="time-m-d">2022-06-07</div>
-        <div class="title">
-          <a href="/2022/06/07/Myfirst/">
-            
-              
-                <span>Myfirst</span>
-              
-            
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="test">
-        <div class="time-m-d">2022-06-07</div>
-        <div class="title">
-          <a href="/2022/06/07/test/">
-            
-              
-                <span>test</span>
-              
-            
-          </a>
-        </div>
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
       </div>
     
   </div>
-  <nav class="post-navigation">
-    
-    <span class="page-num">1 / 1</span>
-    
-  </nav>
-</div>
+
 
         
 <div class="footer">
@@ -447,6 +462,24 @@
 
 
         
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + qqai + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F06%2F09%2Fqqai%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/06/09/qqai/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
   
   
 <script src="/js/shares.js"></script>
