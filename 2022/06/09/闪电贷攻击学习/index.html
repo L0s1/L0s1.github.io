@@ -202,14 +202,12 @@
 <li><p>Aave。Aave 是一个去中心化的非托管流动性市场协议，用户可以作为存款人或借款人参与其中。存款人向市场提供流动性以赚取被动收入，而借款人能够以超额抵押（永久）或抵押不足（单块流动性）的方式借款。</p>
 <p>其中Aave V3 为闪电贷提供了两种选择：</p>
 <ul>
-<li>flahsLoan。允许借款人在单次<em>闪贷</em>交易中获得多个准备金的流动性。</li>
+<li>flahsLoan。允许借款人在单次闪贷交易中获得多个准备金的流动性。</li>
 <li>flahsLoanSimple。允许借款人为交易获取单一准备金的流动性。</li>
 </ul>
 </li>
 </ul>
-<p>​	流程大概为实现IFlashLoanSimpleReceiver.sol或者IFlashLoanReceiver.sol中	的executeOperation函数，该函数用来利用闪电贷，    	然后再调用flahsLoan函数	或者flahsLoanSimple函数，传入相应的参数即可。</p>
-<p>​	executeOperation函数在flashLoan函数成功执行后被内部调用。</p>
-<p>​	其中Aave的手续费用为0.09%。</p>
+<p>​	流程大概为实现 IFlashLoanSimpleReceiver.sol 或者 IFlashLoanReceiver.sol 中的 executeOperation 函数，该函数用来利用闪电贷，然后再调用flahsLoan函数或者 flahsLoanSimple 函数，传入相应的参数即可。executeOperation函数在flashLoan函数成功执行后被内部调用。其中Aave的手续费用为0.09%。</p>
 <ul>
 <li>Uniswap。Uniswap 作为 DeFi 中最受欢迎的去中心化交易所之一，从V2版本开始支持闪电贷（Flash Swaps）功能，该功能通过调用UniswapV2pair 合约实例的 swap 方法带入额外 data 实现。手续费为0.3%。</li>
 <li>dYdX。dYdX 是一个针对专业交易者的去中心化交易所，本身并没有闪电贷功能，但是可以通过对 SoloMargin 合约执行一系列操作来实现类似闪电贷功能。其主要原理是通过继承 DydxFlashloanBase 合约编写initiateFlashLoan 回调 callFunction 实现借贷、套利、还款等操作。手续费 2 Wei。</li>
