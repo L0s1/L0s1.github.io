@@ -218,7 +218,7 @@
 
 <p>其中由用户传入的token参数未做过滤，导致第四行调用的safeTransferFrom函数可被用户控制，攻击者传入自己的部署的恶意合约的地址，并在恶意合约的safeTransferFrom函数中调用depositFor，以此造成重入攻击。</p>
 <p>其中在调用safeTransferFrom前计算了一次balance，在调用后又计算了一次balance，其差值amount为用户传入的代币数，那么攻击者只需要在最后一次重入的时候传入真实代币，当最后一次重入完成，after变成了充值后的余额，那么前面重入的amount也将改变，攻击者实现了充值一次当充值N次的目的。</p>
-<p>大概的伪代码如下：</p>
+<p>大概的攻击合约伪代码如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">contract Attack &#123;</span><br><span class="line">    uint times = 0;</span><br><span class="line">    function safeTransferFrom(address token, uint _amount,address user) public &#123;</span><br><span class="line">        if(times &lt; 4)&#123;</span><br><span class="line">            times ++;</span><br><span class="line">            GrimBoostVault.depositFor(address(this), 0, attackaddress);</span><br><span class="line">        &#125; else&#123;</span><br><span class="line">            GrimBoostVault.depositFor(SLPToken, 200, attackaddress);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="Wault-Finance-被黑事件"><a href="#Wault-Finance-被黑事件" class="headerlink" title="Wault Finance 被黑事件"></a>Wault Finance 被黑事件</h3><p>问题出在WUSDMaster合约中的staking函数：</p>
@@ -227,7 +227,7 @@
 <p>该质押函数一比一质押USDT获得WUSD，同时还会进行swap操作，调用wswapRouter的swapExactTokensForTokensSupportingFeeOnTransferTokens，将质押一部分的 USDT 换成 WEX，这样就会使得 WaultSwapPair (BSC_USDT-WEX) 池子的 WEX 数量减少，价值变高，在多次调用stake函数后，WEX价格上涨，攻击者再将之前通过redeem和利用USDT兑换的WEX在USDT-WEX池中卖出，换取更多的WEX，完成套利。</p>
 <h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><p>1、合理设计经济模型。</p>
 <p>2、使用去中心化预言机获取价格。</p>
-<p>3、未对关键函数建立完备的访问控制机制。</p>
+<p>3、对关键函数建立完备的访问控制机制。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><p><a target="_blank" rel="noopener" href="https://picture.iczhiku.com/weixin/message1623120320734.html">科普 | 无抵押借巨资的闪电贷是什么？缘何频频成为DeFi暴雷帮凶？</a></p>
 </li>
