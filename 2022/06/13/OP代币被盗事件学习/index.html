@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="" />
+  <meta name="description" content="Blog" />
+  
+  
+  <title>
+    
+      OP代币被盗事件学习 
+      
+      
+      |
+    
+     Nian&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Nian</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">OP代币被盗事件学习</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-06-13 18:52:02
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" title="区块链">
+                    <b>#</b> 区块链
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" title="安全事件学习">
+                    <b>#</b> 安全事件学习
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="事件概述"><a href="#事件概述" class="headerlink" title="事件概述"></a>事件概述</h2><p>2022年6月9日，Optimism 和加密货币做市商  Wintermute 发布公告，2000万个 OP 代币被黑客盗取。OP 向 Wintermute 提供了2000万代币，委托其提供流动性服务，OP 在向 Wintermute 发送了1 OP 代币和100万 OP 两笔交且 Wintermute 确认无误后，又向其发送了1900万 OP 代币。但在发送完 OP代币后，Wintermute 发现其无法控制这些代币。因为其多签钱包只部署在以太坊主网上，未在 Optimism 网络部署，黑客通过抢先将该多签地址部署在 Optimism 网络上，成功控制代币。</p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="多签钱包"><a href="#多签钱包" class="headerlink" title="多签钱包"></a>多签钱包</h3><p>往区块链上发送一笔交易，需要使用钱包做一个签名，签名好后将交易发送出去，交易执行成功转装就成功，这是单签钱包。而多签钱包则是需要多个人去签名执行操作的钱包，使用时需要多个人签名发送交易后，转账操作才完成。多签钱包可以使用 m&#x2F;n 的模式，即 n 个人里有 m 个人签名即可完成操作。</p>
+<p>常说的多签主要针对的是比特币和以太坊 ERC-20 标准代币。在比特币中有2种类型的地址，1开头的是 P2PKH，表示个人地址，3开头的是 P2SH，一般表示多签地址。普通的比特币地址是由公钥做哈希后得到的，而多重签名地址基于脚本哈希，所以能够实现复杂的交易逻辑，在原生上比特币就支持多签。而以太坊原生并不支持多签地址，多签钱包在以太坊中往往是一个智能合约。Ownbit 和 Gnosis 代表了当前主流的两种以太坊多签实现方式。其中 Wintermute 使用的 Gnosis 多签钱包。</p>
+<h3 id="EIP155-标准"><a href="#EIP155-标准" class="headerlink" title="EIP155 标准"></a>EIP155 标准</h3><p>EIP155 标准用于防范重放攻击。</p>
+<p>当区块高度大于 FORK_BLKNUM (2,675,000) 且 CHAIN_ID 可用时，在计算交易的哈希以进行签名时，不只是对六个 rlp 编码元素（nonce, gasprice, startgas, to, value, data）进行哈希处理，应对9个 rlp 编码元素（nonce, gasprice, startgas, to, value, data, chainid, 0, 0）进行哈希处理，所以签名后的 v 值为：{0,1} + CHAIN_ID * 2 + 35，而如果只对6个元素进行哈希处理，则签名后的 v 值为：{0,1} + 27。</p>
+<p>当区块高度大于 FORK_BLKNUM (2,675,000) 且 v 值等于 CHAIN_ID * 2 + 35 或者 CHAIN_ID * 2 + 36 时，在计算交易的哈希以进行签名时，不只是对六个 rlp 编码元素进行哈希处理，应对9个 rlp 编码元素（nonce, gasprice, startgas, to, value, data, chainid, 0, 0）进行哈希处理。当前存在的使用 v 值等于27或者28签名方案保持有效，并继续在与以前相同的规则下运行。</p>
+<p>简单点说的就是不加 CHAIN_ID 的签名后的 v 值在27-28之间，交易可以在不同的链上进行重放。</p>
+<h3 id="合约地址生成方式"><a href="#合约地址生成方式" class="headerlink" title="合约地址生成方式"></a>合约地址生成方式</h3><p>智能合约生成合约地址有两种方式，分别是 CREATE 指令和 CREATE2 指令，其中使用 CREATE 指令创建的合约地址可以使用<code>keccak256(rlp.encode(deployingAddress, nonce))[12:]</code>计算出来，其中 nonce的值每发送一笔交易或者创建一个合约就会 +1。</p>
+<p>使用 CREATE2 指令创建的合约的地址使用<code>keccak256(0xff ++ deployingAddr ++ salt ++ keccak256(init_code))[12:]</code>计算，其中 init_code 是被部署合约的字节码。</p>
+<h2 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h2><p>首先是 Optimism 向 Wintermute 的多签钱包地址发送 OP 代币：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140044997.png" alt="image-20220614004415931"></p>
+<p>由于此时 Wintermute 的多签钱包只在以太坊主网上部署，未在 Optimism 网络上部署，因此其对2000万 OP 代币无控制权。</p>
+<p>黑客此时抢先将该多签钱包地址部署到 Optimism 网络上。</p>
+<p>黑客攻击地址为：0x60b28637879b5a09d21b68040020ffbf7dba5107</p>
+<p>其首先分别向两个地址 0x1aa7451DD11b8cb16AC089ED7fE05eFa00100A6A、0x8BcFe4f1358E50A1db10025D731C8b3b17f04DBB转账0.2 eth、0.5 eth：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140140373.png" alt="image-20220614014044339"></p>
+<p>其中 0x1aa7451DD11b8cb16AC089ED7fE05eFa00100A6A 用来部署 Gnosis Safe 的 ProxyFactory 合约：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140141258.png" alt="image-20220614014131219"></p>
+<p>0x8BcFe4f1358E50A1db10025D731C8b3b17f04DBB 则用来部署 0xe7145dd6287ae53326347f3a6694fcf2954bcd8a 合约，该合约用于多次调用 ProxyFactory 中的 <code>createProxy</code>函数：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140142685.png" alt="image-20220614014259649"></p>
+<p>由于生成多签钱包地址的是 Gnosis Safe 的 ProxyFactory 合约，因此找到创建该合约的记录。</p>
+<p>首先在 etherscan 搜索多签钱包地址0x4f3a120e72c76c22ae802d129f599bfdbc31cb81，然后找到其创建的记录：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140101334.png" alt="image-20220614010145311"></p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140102673.png" alt="image-20220614010256645"></p>
+<p>然后找到 Gnosis Safe 的 ProxyFactory 合约的创建记录：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140104688.png" alt="image-20220614010403652"></p>
+<p>然后查看此时 v 值，不知道在 etherscan 如何查看，学习慢雾的方法，注册了一个 infura.io 账号，使用该命令查看详情：<code>curl -s -H &#39;content-type:application/json&#39; -d &#39;&#123;&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;eth_getTransactionByHash&quot;,&quot;params&quot;:[&quot;0x75a42f240d229518979199f56cd7c82e4fc1f1a20ad9a4864c635354b4a34261&quot;],&quot;id&quot;:1&#125;&#39; https://mainnet.infura.io/v3/xxxx</code></p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140106354.png" alt="image-20220614010649319"></p>
+<p>可以看到此时的 v 值为 0x1c，换算为十进制为28，因此该 v 值不符合 EIP155标准，不带 CHAIN_ID，可以在其他链进行重放攻击，以得到相同地址的合约，攻击者在 Optimism 网络重放，得到地址与在以太坊主网相同的 ProxyFactory 合约：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140113772.png" alt="image-20220614011343743"></p>
+<p>然后再看  Gnosis Safe 的 ProxyFactory 合约的源代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">contract ProxyFactory &#123;</span><br><span class="line"></span><br><span class="line">    event ProxyCreation(Proxy proxy);</span><br><span class="line"></span><br><span class="line">    /// @dev Allows to create new proxy contact and execute a message call to the new proxy within one transaction.</span><br><span class="line">    /// @param masterCopy Address of master copy.</span><br><span class="line">    /// @param data Payload for message call sent to new proxy contract.</span><br><span class="line">    function createProxy(address masterCopy, bytes memory data)</span><br><span class="line">        public</span><br><span class="line">        returns (Proxy proxy)</span><br><span class="line">    &#123;</span><br><span class="line">        proxy = new Proxy(masterCopy);</span><br><span class="line">        if (data.length &gt; 0)</span><br><span class="line">            // solium-disable-next-line security/no-inline-assembly</span><br><span class="line">            assembly &#123;</span><br><span class="line">                if eq(call(gas, proxy, 0, add(data, 0x20), mload(data), 0, 0), 0) &#123; revert(0, 0) &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        emit ProxyCreation(proxy);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //省略其他代码 N 行</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到新建合约地址使用的<code>new Proxy(masterCopy)</code>，即使用的 CREATE 指令进行创建，合约地址是 msg.sender 以及 nonce 来计算的，由于此时工厂合约地址已经和以太坊主网相同，只需要 nonce 和在以太坊主网上生成多签钱包地址的 nonce 相同，则可完成部署，攻击者通过调用合约 0xe7145dd6287ae53326347f3a6694fcf2954bcd8a 来实现，该合约内部则多次调用 ProxyFactory 合约的<code>createProxy</code>函数，来增加 nonce 值达到该目的：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140130665.png" alt="image-20220614013033627"></p>
+<p>最后成功将该多签钱包地址部署在 Optimism网络：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202206140132168.png" alt="image-20220614013208126"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>引发此次安全事件的原因：一是 Wintermute 未验证在侧链是否对其多签钱包地址具有控制权；二是 Solidity 旧版本的漏洞导致使用 CREATE 指令来创建合约地址；三是交易签名未带 CHAIN_ID，不符合 EIP155 标准导致交易可在其他链重放。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/MjvCChjEGuSTr9cELQlW_A">2000 万 OP 代币被盗关键：交易重放</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.finacerun.com/index.php/home/news/detail/article_id/98429.html">重入攻击 + 管理漏洞：2000 万枚 OP 被盗事件分析</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.hackdig.com/06/hack-684523.htm">交易重放+管理漏洞—2000万枚OP被盗事件分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/526490325">2000万OP因何被盗? 来看看链上细节</a></li>
+<li><a target="_blank" rel="noopener" href="https://eips.ethereum.org/EIPS/eip-155">EIP-155: Simple replay attack protection</a></li>
+<li><a target="_blank" rel="noopener" href="https://learnblockchain.cn/article/1902">深入剖析 Ownbit 和 Gnosis 多签</a></li>
+<li><a target="_blank" rel="noopener" href="https://learnblockchain.cn/article/4077">多签钱包的工作原理与使用方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://m.elecfans.com/article/1098135.html">CREATE2指令在广义状态通道中的应用介绍</a></li>
+</ul>
+
+      </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%A6%82%E8%BF%B0"><span class="toc-text">事件概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%AD%BE%E9%92%B1%E5%8C%85"><span class="toc-text">多签钱包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EIP155-%E6%A0%87%E5%87%86"><span class="toc-text">EIP155 标准</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%88%E7%BA%A6%E5%9C%B0%E5%9D%80%E7%94%9F%E6%88%90%E6%96%B9%E5%BC%8F"><span class="toc-text">合约地址生成方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">事件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/L0s1/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/L0s1/">Copyright © 2022 Nian</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + OP%E4%BB%A3%E5%B8%81%E8%A2%AB%E7%9B%97%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0 + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F06%2F13%2FOP%25E4%25BB%25A3%25E5%25B8%2581%25E8%25A2%25AB%25E7%259B%2597%25E4%25BA%258B%25E4%25BB%25B6%25E5%25AD%25A6%25E4%25B9%25A0%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/06/13/OP%E4%BB%A3%E5%B8%81%E8%A2%AB%E7%9B%97%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
