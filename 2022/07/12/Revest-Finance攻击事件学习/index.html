@@ -193,8 +193,8 @@
 <li>mintValueLock : 用户质押的数字资产只有在升值或者贬值到预设数值才能被解锁；</li>
 <li>mintAddressLock : 用户质押的数字资产只能被预设的账户解锁。</li>
 </ul>
-<p>例如 <code>mintAddressLock</code>，用户需要传入参数为：trigger(解锁人)，arguments(可省略)，recipients(接受人)，quantities(FNFT数量)，FNFTConfig(结构体，包含质押物 asset，每枚 FNFT 对应的质押物数量 depositAmount 以及其他信息)。</p>
-<p>同时还提供<code>depositAdditionalToFNFT</code>方法，用于让用户为存在的FNFT质押更多的质押物。传入的参数为：fnftId(存在的 FNFT 的 ID)，amount(每枚FNFT对应的质押物数量)，quantity(FNFT 数量)。其中 quantity 可以小于或者等于 mint 的数量，当等于时，合约会 burn 掉之前的 FNFT，并生成新的 FNFT，修改其对应的质押物数量；当小于时，合约会 burn 掉增加质押物数量的 FNFT，生成新的 FNFT，并修改其对应的质押物数量，此时用户存在两种 ID 的 FNFT，一种是原来质押物数量的，一种是增加了质押物数量的。</p>
+<p>例如 <code>mintAddressLock</code>，用户需要传入参数为：trigger(解锁人)，arguments(可省略)，recipients(接受人)，quantities(FNFT 数量)，FNFTConfig(结构体，包含质押物 asset，每枚 FNFT 对应的质押物数量 depositAmount 以及其他信息)。</p>
+<p>同时还提供<code>depositAdditionalToFNFT</code>方法，用于让用户为存在的FNFT质押更多的质押物。传入的参数为：fnftId(存在的 FNFT 的 ID)，amount(每枚 FNFT 对应的质押物数量)，quantity(FNFT 数量)。其中 quantity 可以小于或者等于 mint 的数量，当等于时，合约会 burn 掉之前的 FNFT，并生成新的 FNFT，修改其对应的质押物数量；当小于时，合约会 burn 掉增加质押物数量的 FNFT，生成新的 FNFT，并修改其对应的质押物数量，此时用户存在两种 ID 的 FNFT，一种是原来质押物数量的，一种是增加了质押物数量的。</p>
 <h2 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h2><p>攻击交易哈希：0xe0b0c2672b760bef4e2851e91c69c8c0ad135c6987bbf1f43f5846d89e691428</p>
 <p>攻击者通过 uniswap 闪电贷获取了2 RENA，然后调用<code>mintAddressLock</code>，铸造 ID 为1027的 FNFT：</p>
 <p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202207121843073.png" alt="image-20220712184348037"></p>
