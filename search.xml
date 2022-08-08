@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>Wormhole赏金漏洞学习.md</title>
+      <link href="/2022/08/08/Wormhole%E8%B5%8F%E9%87%91%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0-md/"/>
+      <url>/2022/08/08/Wormhole%E8%B5%8F%E9%87%91%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0-md/</url>
+      
+        <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Wormhole 是一个跨链桥，可以连接到多个链，如 solana、Ethereum、BSC 等。2022年2月24日，名为 satya0x 的白帽子负责任地披露了以太坊上 Wormhole 核心桥接合约的一个严重漏洞，该漏洞和可升级的代理合约有关。Wormhole 向 satya0x 支付了创纪录的 1000 万美元的漏洞赏金（太猛了家人们就是说）。</p><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><ul><li><p><code>delegatecall</code> 和 <code>call</code></p><p><code>delegatecall</code> 不会修改 <code>msg</code> 中的信息，且会将调用的合约在当前合约中运行（执行环境为当前合约），也就是 storage 使用的当前合约。</p><p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208081816926.png" alt="image-20220802131753090"></p><p><code>call</code> 会修改 <code>msg.sender</code> 为当前合约，但是执行环境在调用的目标合约。</p><p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208081817047.png" alt="image-20220802160252935"></p></li><li><p>透明代理模式 (TPP) 和通用可升级代理标准 (UUPS)</p><p>通过 <code>delegatecall</code> 的特性，我们可以实现可升级的合约。代理合约除了通过 <code>delegatecall</code> 调用实现合约，其本身也会实现一些方法，如 <code>upgradeTo</code>，如果实现合约中存在同名方法，那如何判断到底调哪个合约的方法呢？</p><p>其中透明代理模式（TPP）是一种解决方式，具体做法是当调用者是代理合约的管理员时，调用的是代理合约的方法；当调用者是其他的用户地址时，通过代理合约调用逻辑合约的方法。在该模式中，如果调用者是代理的管理员，则代理合约不会进行任何 <code>delegatecall </code>调用。</p><p>通用可升级代理标准则（UUPS）是一种新的方式，其和透明代理模式的区别在于，透明代理模式的升级逻辑在代理合约中，而 UUPS 则在实现合约中。</p></li></ul><h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>Wormhole采用的代理模式为 UUPS，也就是升级逻辑也存在在实现合约中，项目方只通过代理合约调用了 <code>initialize</code> 方法，未在实现合约中调用该方法，而该方法默认所有人都可调用，因此漏洞攻击的路径如下：</p><ul><li><p>攻击者调用  <code>initialize</code> 方法，初始化 <code>initialGuardians</code> 以及 <code>chainId</code>、<code>governanceChainId</code> 、<code> governanceContract</code> 等参数，其中最重要的参数为 <code>initialGuardians</code>，将其设置为攻击地址。</p><p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208081817164.png" alt="image-20220802154631646"></p></li><li><p>攻击者部署 destructor 合约，在其 <code>initialize</code> 方法中实现 destructor。</p></li><li><p>然后调用 <code>submitContractUpgrade</code> 方法，传入的参数为 bytes，其中包含了 timestamp、nonce、chainId、governance.address、destructor.address、attackerSigner.address、guardianSetIndex等。</p><p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208081817147.png" alt="image-20220802155520902"></p></li><li><p>当校验传入的 vm， 通过以后，会调用 <code>upgradeImplementation</code> 升级合约。该函数中调用 <code>_upgradeTo</code> 方法去升级合约，同时还会通过 <code>delegatecall</code> 调用新的实现合约的 <code>initialize</code> 方法。由于新的实现合约的 <code>initialize</code> 中会进行 <code>destructor</code> 操作，因此该合约会被毁掉，而代理合约没有任何逻辑实现，只靠 <code>delegatecall</code> 调用该合约，因此代理合约会无法使用。</p><p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208081817005.png" alt="image-20220802155835903"></p></li></ul><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Wormhole 采用 UUPS 的代理模式，但未对实现合约进行初始化导致漏洞产生。</p><p>在使用 UUPS 代理模式时，需要注意实现合约初始化的问题，防止被黑客调用初始化方法获得管理员权限，从而恶意调用更新方法销毁实现合约，锁定代理合约所有资产。</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://medium.com/immunefi/wormhole-uninitialized-proxy-bugfix-review-90250c41a43a">Wormhole Uninitialized Proxy Bugfix Review</a></p><p><a href="https://zhuanlan.zhihu.com/p/535263979">跨链桥：Web3黑客必争之地</a></p><p><a href="https://docs.openzeppelin.com/contracts/4.x/api/proxy#transparent-vs-uups">Transparent vs UUPS Proxies</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 区块链 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 安全事件学习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Audius攻击事件学习</title>
       <link href="/2022/07/27/Audius%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/"/>
       <url>/2022/07/27/Audius%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/</url>
