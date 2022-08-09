@@ -11,7 +11,7 @@
   
   <title>
     
-      Tag 
+      GenomesDao攻击事件学习 
       
       
       |
@@ -146,19 +146,146 @@
 
 
   
-  <!-- 分类页 url形式：https://yoursite/categories/ -->
-  <div class="container category-index">
-    <div>
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/">安全事件学习</a><span class="category-list-count">1</span></li></ul>
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">GenomesDao攻击事件学习</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-08-08 18:28:16
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" title="安全事件学习">
+                    <b>#</b> 安全事件学习
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" title="区块链">
+                    <b>#</b> 区块链
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="事件概述"><a href="#事件概述" class="headerlink" title="事件概述"></a>事件概述</h2><p>UTC 时间2022年8月5日8时，MATIC 链上的项目 GenomesDAO 被攻击，其 LPSTAKING 合约以及 VeGnomeLock 合约中的资金被盗走。事件的主要原因是因为合约中的 <code>initialized</code> 函数可被无限制调用。</p>
+<h2 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h2><p>攻击者 EOA 地址：</p>
+<p>0x43EC1D163cc4C15B574F86d8203c3B0F3EbED7a3</p>
+<p>攻击合约：</p>
+<p>0x9aa63491bb927f024d37b0e6017137f7f03da3c6</p>
+<p>0x8e10c9493501a828304d77630b6f862bbf50c052</p>
+<p>0x4a7c088099f744d5c6c838c71502a04e0983f266</p>
+<p>攻击交易哈希：</p>
+<p>0x252a7e6f23ffb516c23df2a3b2e09b42d00a06fa4e9a5830e74fb35581f7632c</p>
+<p>0x82cebaf092bc6a4c9235daeda6a9b504a873844c41dc31c51dbeebbab96a90bf</p>
+<p>首先查看交易 0x252a7e6f23ffb516c23df2a3b2e09b42d00a06fa4e9a5830e74fb35581f7632c ，其首先通过代理合约调用了 <code>LPStakingOnPoly</code> 合约的 <code>initialized</code> 方法，更新了 <code>_stakingToken</code> 的值，修改为攻击者创建的攻击合约的地址：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091117586.png" alt="image-20220809111743544"></p>
+<p>然后调用通过代理合约 <code>LPStakingOnPoly</code> 的 <code>stake</code> 方法，质押数量为 946677946000000000000。由于其 <code>_stakingToken</code> 的值已经被攻击者控制，因此会 stake 虚假的代币，并修改相应的 <code>_balances</code> 的值：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091133094.png" alt="image-202208091133094"></p>
+<p>接下来攻击者再次调用 <code>LPStakingOnPoly</code> 合约的 <code>initialized</code> 方法，将 <code>_stakingToken</code> 的值修改为正常的 <code>SushiSwap LP Token</code> 的地址：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091137779.png" alt="image-20220809113731748"></p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091137969.png" alt="image-20220809113751939"></p>
+<p>然后攻击者通过代理合约调用 <code>LPStakingOnPoly</code> 合约的 <code>withdraw</code> 方法，由于 <code>_stakingToken</code> 的值已经变成正常的 <code>SushiSwap LP Token</code> 的地址，因此攻击者提取了 946677946000000000000 数量的 LP：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091143644.png" alt="image-20220809114314607"></p>
+<p>接下来攻击者继续重复上面的步骤，先 <code>initialized</code> 修改为虚假的代币地址，然后再 <code>satke</code> ，接着再 <code>initialized</code> 为真实的代币地址，最后调用 <code>withdraw</code> 提取真实的代币。不同的地方在于修改的真实代币的地址不同。</p>
+<p>改笔交易最后还对 <code>VeGnomeLock</code> 合约进行了攻击，因为使用了一样的 <code>initialized</code> 方法。具体步骤是先  <code>initialized</code> 修改 <code>_lockToken</code> 为虚假代币地址，然后调用 <code>lock</code> 进行锁仓，接着再 <code>initialized</code> 为真实的代币地址，最后调用 <code>emergencyUnlock</code> 方法解除锁仓，提取真实代币。</p>
+<p>攻击者通过以上步骤提取的大量的真实代币：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091157609.png" alt="image-20220809115729565"></p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091157044.png" alt="image-20220809115744008"></p>
+<p>然后再看交易 0x82cebaf092bc6a4c9235daeda6a9b504a873844c41dc31c51dbeebbab96a90bf，攻击者将获取到的 <code>LP Token</code> 兑换成相应的代币，最后将 WETH 发送至攻击者的 EOA 地址：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091203033.png" alt="image-20220809120349999"></p>
+<p>后续攻击者通过 anyswap 进行兑换及转移资产：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091215164.png" alt="image-20220809121532123"></p>
+<h2 id="漏洞详解"><a href="#漏洞详解" class="headerlink" title="漏洞详解"></a>漏洞详解</h2><p>漏洞点位于 <code>initialized</code> 方法，该函数可见性为 <code>public</code> ，其位于父合约中，作用就是初始化质押代币的地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function initialized(address _stakingToken, string memory _nameArg, string memory _symbolArg) public &#123; </span><br><span class="line">        stakingToken = IERC20(_stakingToken); </span><br><span class="line">        name = _nameArg;</span><br><span class="line">        symbol = _symbolArg;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后子合约中存在 <code>initialize</code> 方法，该方法会调用父合约的  <code>initialized</code> 方法，进行初始化操作，且带有修饰器 <code>initializer</code> ，只能够调用一次：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">function initialize(</span><br><span class="line">        string memory _name,</span><br><span class="line">        string memory _symbol,</span><br><span class="line">        address _stakingToken,</span><br><span class="line">        address _rewardToken,</span><br><span class="line">        address _veToken</span><br><span class="line">    ) public initializer &#123;</span><br><span class="line">        __Ownable_init();</span><br><span class="line">        LPStakingOnPolyWrapper.initialized(</span><br><span class="line">            _stakingToken,</span><br><span class="line">            _name,</span><br><span class="line">            _symbol</span><br><span class="line">        );</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是其并未重写 <code>initialized</code> 方法，并且其可见性为 <code>public</code> ，因此任何人都可以调用该方法。</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202208091225289.png" alt="image-20220809122554246"></p>
+<h2 id="修复"><a href="#修复" class="headerlink" title="修复"></a>修复</h2><p>将父合约的 <code>initialized</code> 方法的可见性修改为 <code>internal</code> ，或者添加修饰器进行限定。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>此次攻击事件原理较为简单，在编写合约时务必考虑好各个方法的可见性，防止发生越权。</p>
+
+      </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%A6%82%E8%BF%B0"><span class="toc-text">事件概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">事件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E8%AF%A6%E8%A7%A3"><span class="toc-text">漏洞详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D"><span class="toc-text">修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+      
     </div>
   </div>
-  
 
   
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
 
   
-
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
   
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
 
         
 <div class="footer">
@@ -419,12 +546,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + tags + '&url=' + https%3A%2F%2Fl0s1.github.io%2Fcategories%2Findex.html + '" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + GenomesDao%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0 + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F08%2F08%2FGenomesDao%25E6%2594%25BB%25E5%2587%25BB%25E4%25BA%258B%25E4%25BB%25B6%25E5%25AD%25A6%25E4%25B9%25A0%2F + '" target="_blank" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/categories/index.html" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/08/08/GenomesDao%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" target="_blank" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         
