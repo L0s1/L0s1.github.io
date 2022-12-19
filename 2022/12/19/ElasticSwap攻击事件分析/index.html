@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="" />
+  <meta name="description" content="Blog" />
+  
+  
+  <title>
+    
+      ElasticSwap攻击事件分析 
+      
+      
+      |
+    
+     Nian&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Nian</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">ElasticSwap攻击事件分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-12-19 17:56:20
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" title="区块链">
+                    <b>#</b> 区块链
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" title="安全事件学习">
+                    <b>#</b> 安全事件学习
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="事件概述"><a href="#事件概述" class="headerlink" title="事件概述"></a>事件概述</h2><p>2022年12月14日，ElasticSwap 项目遭到黑客攻击，在以太坊上的 AMPL-USDC 池子被盗，黑客获利445个 ETH。发生该事件的根本原因是合约中添加流动性和移除流动性两个操作使用的是两种不同数据源。</p>
+<h2 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h2><p>攻击交易哈希：</p>
+<p><a target="_blank" rel="noopener" href="https://etherscan.io/tx/0xb36486f032a450782d5d2fac118ea90a6d3b08cac3409d949c59b43bcd6dbb8f">https://etherscan.io/tx/0xb36486f032a450782d5d2fac118ea90a6d3b08cac3409d949c59b43bcd6dbb8f</a></p>
+<p>首先攻击者调用 approve 进行授权，然后在 Uniswap V2 的 WETH-AMPL、USDC-USDT 池子调用闪电贷借出  AMPL 和 USDC:</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191805085.png" alt="image-20221219180551047"></p>
+<p>然后第二次回调 uniswapV2Call 时候开始进攻攻击。</p>
+<p>首先向 AMPL-USDC-ELATICSWAP 池子中添加两次流动性，第一次添加只转入了 AMPL，第二次添加转入了 AMPL 和 USDC ：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191807575.png" alt="image-20221219180711548"></p>
+<p>然后攻击者调用 transfer 方法向池子中转入 USDC，增加 baseTokenReserveQty 的值，然后再移除流动性：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191808838.png" alt="image-20221219180857807"></p>
+<p>这里攻击者 AMPL 以及 USDC 都没有回本，尤其是 AMPL，所以攻击者先将部分的 USDC 换成了 AMPL，使得能够归还闪电贷，然后再进行添加&#x2F;移除流动性操作，继续套利：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191810785.png" alt="image-20221219181023753"></p>
+<p>在进行了以上的操作后攻击者已经成功获利，然后攻击者开始归还闪电贷，在二层回调归还 USDC，一层回调归还 AMPL：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191812259.png" alt="image-20221219181250211"></p>
+<p>最后攻击者将获得的 AMPL 以及 USDC 全部换成 ETH，然后转移：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212191813297.png" alt="image-20221219181330257"></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>由上面的事件分析可以看到异常点位于添加&#x2F;移除流动性时，首先查看 Exchange 合约(即 Uinswap 的 Pair 合约)的 addLiquidity 方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">function addLiquidity(</span><br><span class="line">        uint256 _baseTokenQtyDesired,</span><br><span class="line">        uint256 _quoteTokenQtyDesired,</span><br><span class="line">        uint256 _baseTokenQtyMin,</span><br><span class="line">        uint256 _quoteTokenQtyMin,</span><br><span class="line">        address _liquidityTokenRecipient,</span><br><span class="line">        uint256 _expirationTimestamp</span><br><span class="line">    ) external nonReentrant() isNotExpired(_expirationTimestamp) &#123;</span><br><span class="line">        uint256 totalSupply = this.totalSupply();</span><br><span class="line">        MathLib.TokenQtys memory tokenQtys =</span><br><span class="line">            MathLib.calculateAddLiquidityQuantities(</span><br><span class="line">                _baseTokenQtyDesired,</span><br><span class="line">                _quoteTokenQtyDesired,</span><br><span class="line">                _baseTokenQtyMin,</span><br><span class="line">                _quoteTokenQtyMin,</span><br><span class="line">                IERC20(baseToken).balanceOf(address(this)),</span><br><span class="line">                totalSupply,</span><br><span class="line">                internalBalances</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">         _mint(_liquidityTokenRecipient, tokenQtys.liquidityTokenQty); // mint liquidity tokens to recipient</span><br></pre></td></tr></table></figure>
+
+<p>可以看到关键点在 MathLib.calculateAddLiquidityQuantities 这个函数，找到这个函数的关键代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">function calculateAddLiquidityQuantities(</span><br><span class="line">        uint256 _baseTokenQtyDesired,</span><br><span class="line">        uint256 _quoteTokenQtyDesired,</span><br><span class="line">        uint256 _baseTokenQtyMin,</span><br><span class="line">        uint256 _quoteTokenQtyMin,</span><br><span class="line">        uint256 _baseTokenReserveQty,</span><br><span class="line">        uint256 _totalSupplyOfLiquidityTokens,</span><br><span class="line">        InternalBalances storage _internalBalances</span><br><span class="line">    ) public returns (TokenQtys memory tokenQtys) &#123;</span><br><span class="line">    if (</span><br><span class="line">                    quoteTokenQtyFromDecay &lt; _quoteTokenQtyDesired &amp;&amp;</span><br><span class="line">                    baseTokenQtyFromDecay &lt; _baseTokenQtyDesired</span><br><span class="line">                ) &#123;</span><br><span class="line">                    // the user still has qty that they desire to contribute to the exchange for liquidity</span><br><span class="line">                    (</span><br><span class="line">                        tokenQtys.baseTokenQty,</span><br><span class="line">                        tokenQtys.quoteTokenQty,</span><br><span class="line">                        tokenQtys.liquidityTokenQty</span><br><span class="line">                    ) = calculateAddTokenPairLiquidityQuantities(</span><br><span class="line">                        _baseTokenQtyDesired - baseTokenQtyFromDecay, // safe from underflow quoted on above IF</span><br><span class="line">                        _quoteTokenQtyDesired - quoteTokenQtyFromDecay, // safe from underflow quoted on above IF</span><br><span class="line">                        0, // we will check minimums below</span><br><span class="line">                        0, // we will check minimums below</span><br><span class="line">                        _totalSupplyOfLiquidityTokens +</span><br><span class="line">                            liquidityTokenQtyFromDecay,</span><br><span class="line">                        _internalBalances // NOTE: these balances have already been updated when we did the decay math.</span><br><span class="line">                    );</span><br><span class="line">                &#125;</span><br><span class="line">                tokenQtys.baseTokenQty += baseTokenQtyFromDecay;</span><br><span class="line">                tokenQtys.quoteTokenQty += quoteTokenQtyFromDecay;</span><br><span class="line">                tokenQtys.liquidityTokenQty += liquidityTokenQtyFromDecay;</span><br><span class="line"></span><br><span class="line">                require(</span><br><span class="line">                    tokenQtys.baseTokenQty &gt;= _baseTokenQtyMin,</span><br><span class="line">                    &quot;MathLib: INSUFFICIENT_BASE_QTY&quot;</span><br><span class="line">                );</span><br><span class="line"></span><br><span class="line">                require(</span><br><span class="line">                    tokenQtys.quoteTokenQty &gt;= _quoteTokenQtyMin,</span><br><span class="line">                    &quot;MathLib: INSUFFICIENT_QUOTE_QTY&quot;</span><br><span class="line">                );</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // the user is just doing a simple double asset entry / providing both base and quote.</span><br><span class="line">                (</span><br><span class="line">                    tokenQtys.baseTokenQty,</span><br><span class="line">                    tokenQtys.quoteTokenQty,</span><br><span class="line">                    tokenQtys.liquidityTokenQty</span><br><span class="line">                ) = calculateAddTokenPairLiquidityQuantities(</span><br><span class="line">                    _baseTokenQtyDesired,</span><br><span class="line">                    _quoteTokenQtyDesired,</span><br><span class="line">                    _baseTokenQtyMin,</span><br><span class="line">                    _quoteTokenQtyMin,</span><br><span class="line">                    _totalSupplyOfLiquidityTokens,</span><br><span class="line">                    _internalBalances</span><br><span class="line">                );</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; </span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>可以看到会调用 calculateAddTokenPairLiquidityQuantities 计算 tokenQtys 中的值。跟进该函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">function calculateAddTokenPairLiquidityQuantities(</span><br><span class="line">        uint256 _baseTokenQtyDesired,</span><br><span class="line">        uint256 _quoteTokenQtyDesired,</span><br><span class="line">        uint256 _baseTokenQtyMin,</span><br><span class="line">        uint256 _quoteTokenQtyMin,</span><br><span class="line">        uint256 _totalSupplyOfLiquidityTokens,</span><br><span class="line">        InternalBalances storage _internalBalances</span><br><span class="line">    )</span><br><span class="line">        public</span><br><span class="line">        returns (</span><br><span class="line">            uint256 baseTokenQty,</span><br><span class="line">            uint256 quoteTokenQty,</span><br><span class="line">            uint256 liquidityTokenQty</span><br><span class="line">        )</span><br><span class="line">    &#123;</span><br><span class="line">        uint256 requiredQuoteTokenQty =</span><br><span class="line">            calculateQty(</span><br><span class="line">                _baseTokenQtyDesired,</span><br><span class="line">                _internalBalances.baseTokenReserveQty,</span><br><span class="line">                _internalBalances.quoteTokenReserveQty</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">        if (requiredQuoteTokenQty &lt;= _quoteTokenQtyDesired) &#123;</span><br><span class="line">            // user has to provide less than their desired amount</span><br><span class="line">            require(</span><br><span class="line">                requiredQuoteTokenQty &gt;= _quoteTokenQtyMin,</span><br><span class="line">                &quot;MathLib: INSUFFICIENT_QUOTE_QTY&quot;</span><br><span class="line">            );</span><br><span class="line">            baseTokenQty = _baseTokenQtyDesired;</span><br><span class="line">            quoteTokenQty = requiredQuoteTokenQty;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // we need to check the opposite way.</span><br><span class="line">            uint256 requiredBaseTokenQty =</span><br><span class="line">                calculateQty(</span><br><span class="line">                    _quoteTokenQtyDesired,</span><br><span class="line">                    _internalBalances.quoteTokenReserveQty,</span><br><span class="line">                    _internalBalances.baseTokenReserveQty</span><br><span class="line">                );</span><br><span class="line"></span><br><span class="line">            require(</span><br><span class="line">                requiredBaseTokenQty &gt;= _baseTokenQtyMin,</span><br><span class="line">                &quot;MathLib: INSUFFICIENT_BASE_QTY&quot;</span><br><span class="line">            );</span><br><span class="line">            baseTokenQty = requiredBaseTokenQty;</span><br><span class="line">            quoteTokenQty = _quoteTokenQtyDesired;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        liquidityTokenQty = calculateLiquidityTokenQtyForDoubleAssetEntry(</span><br><span class="line">            _totalSupplyOfLiquidityTokens,</span><br><span class="line">            quoteTokenQty,</span><br><span class="line">            _internalBalances.quoteTokenReserveQty</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        _internalBalances.baseTokenReserveQty += baseTokenQty;</span><br><span class="line">        _internalBalances.quoteTokenReserveQty += quoteTokenQty;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>计算 liquidityTokenQty 使用的函数 calculateLiquidityTokenQtyForDoubleAssetEntry，跟进该函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function calculateLiquidityTokenQtyForDoubleAssetEntry(</span><br><span class="line">        uint256 _totalSupplyOfLiquidityTokens,</span><br><span class="line">        uint256 _quoteTokenQty,</span><br><span class="line">        uint256 _quoteTokenReserveBalance</span><br><span class="line">    ) public pure returns (uint256 liquidityTokenQty) &#123;</span><br><span class="line">        liquidityTokenQty =</span><br><span class="line">            (_quoteTokenQty * _totalSupplyOfLiquidityTokens) /</span><br><span class="line">            _quoteTokenReserveBalance;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>到这里可以发现计算 liquidityTokenQty 使用的 <code>_quoteTokenReserveBalance</code>，该值来自_internalBalances.quoteTokenReserveQty，因此添加流动性这个操作使用的 internalBalances 的数据。</p>
+<p>再看移除流动性函数 removeLiquidity 的代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line">function removeLiquidity(</span><br><span class="line">        uint256 _liquidityTokenQty,</span><br><span class="line">        uint256 _baseTokenQtyMin,</span><br><span class="line">        uint256 _quoteTokenQtyMin,</span><br><span class="line">        address _tokenRecipient,</span><br><span class="line">        uint256 _expirationTimestamp</span><br><span class="line">    ) external nonReentrant() isNotExpired(_expirationTimestamp) &#123;</span><br><span class="line">        require(this.totalSupply() != 0, &quot;Exchange: INSUFFICIENT_LIQUIDITY&quot;);</span><br><span class="line">        require(</span><br><span class="line">            _baseTokenQtyMin != 0 &amp;&amp; _quoteTokenQtyMin != 0,</span><br><span class="line">            &quot;Exchange: MINS_MUST_BE_GREATER_THAN_ZERO&quot;</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        uint256 baseTokenReserveQty =</span><br><span class="line">            IERC20(baseToken).balanceOf(address(this));</span><br><span class="line">        uint256 quoteTokenReserveQty =</span><br><span class="line">            IERC20(quoteToken).balanceOf(address(this));</span><br><span class="line"></span><br><span class="line">        uint256 totalSupplyOfLiquidityTokens = this.totalSupply();</span><br><span class="line">        // calculate any DAO fees here.</span><br><span class="line">        uint256 liquidityTokenFeeQty =</span><br><span class="line">            MathLib.calculateLiquidityTokenFees(</span><br><span class="line">                totalSupplyOfLiquidityTokens,</span><br><span class="line">                internalBalances</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">        // we need to factor this quantity in to any total supply before redemption</span><br><span class="line">        totalSupplyOfLiquidityTokens += liquidityTokenFeeQty;</span><br><span class="line"></span><br><span class="line">        uint256 baseTokenQtyToReturn =</span><br><span class="line">            (_liquidityTokenQty * baseTokenReserveQty) /</span><br><span class="line">                totalSupplyOfLiquidityTokens;</span><br><span class="line">        uint256 quoteTokenQtyToReturn =</span><br><span class="line">            (_liquidityTokenQty * quoteTokenReserveQty) /</span><br><span class="line">                totalSupplyOfLiquidityTokens;</span><br><span class="line"></span><br><span class="line">        require(</span><br><span class="line">            baseTokenQtyToReturn &gt;= _baseTokenQtyMin,</span><br><span class="line">            &quot;Exchange: INSUFFICIENT_BASE_QTY&quot;</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        require(</span><br><span class="line">            quoteTokenQtyToReturn &gt;= _quoteTokenQtyMin,</span><br><span class="line">            &quot;Exchange: INSUFFICIENT_QUOTE_QTY&quot;</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        // this ensures that we are removing the equivalent amount of decay</span><br><span class="line">        // when this person exits.</span><br><span class="line">        &#123;</span><br><span class="line">            //scoping to avoid stack too deep errors</span><br><span class="line">            uint256 internalBaseTokenReserveQty =</span><br><span class="line">                internalBalances.baseTokenReserveQty;</span><br><span class="line">            uint256 baseTokenQtyToRemoveFromInternalAccounting =</span><br><span class="line">                (_liquidityTokenQty * internalBaseTokenReserveQty) /</span><br><span class="line">                    totalSupplyOfLiquidityTokens;</span><br><span class="line"></span><br><span class="line">            internalBalances.baseTokenReserveQty = internalBaseTokenReserveQty =</span><br><span class="line">                internalBaseTokenReserveQty -</span><br><span class="line">                baseTokenQtyToRemoveFromInternalAccounting;</span><br><span class="line"></span><br><span class="line">            // We should ensure no possible overflow here.</span><br><span class="line">            uint256 internalQuoteTokenReserveQty =</span><br><span class="line">                internalBalances.quoteTokenReserveQty;</span><br><span class="line">            if (quoteTokenQtyToReturn &gt; internalQuoteTokenReserveQty) &#123;</span><br><span class="line">                internalBalances</span><br><span class="line">                    .quoteTokenReserveQty = internalQuoteTokenReserveQty = 0;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                internalBalances</span><br><span class="line">                    .quoteTokenReserveQty = internalQuoteTokenReserveQty =</span><br><span class="line">                    internalQuoteTokenReserveQty -</span><br><span class="line">                    quoteTokenQtyToReturn;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            internalBalances.kLast =</span><br><span class="line">                internalBaseTokenReserveQty *</span><br><span class="line">                internalQuoteTokenReserveQty;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (liquidityTokenFeeQty != 0) &#123;</span><br><span class="line">            _mint(</span><br><span class="line">                IExchangeFactory(exchangeFactoryAddress).feeAddress(),</span><br><span class="line">                liquidityTokenFeeQty</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _burn(msg.sender, _liquidityTokenQty);</span><br><span class="line">        IERC20(baseToken).safeTransfer(_tokenRecipient, baseTokenQtyToReturn);</span><br><span class="line">        IERC20(quoteToken).safeTransfer(_tokenRecipient, quoteTokenQtyToReturn);</span><br><span class="line">        emit RemoveLiquidity(</span><br><span class="line">            msg.sender,</span><br><span class="line">            baseTokenQtyToReturn,</span><br><span class="line">            quoteTokenQtyToReturn</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键的部分代码：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">uint256 baseTokenReserveQty =</span><br><span class="line">    IERC20(baseToken).balanceOf(address(this));</span><br><span class="line">uint256 quoteTokenReserveQty =</span><br><span class="line">    IERC20(quoteToken).balanceOf(address(this));</span><br><span class="line">uint256 baseTokenQtyToReturn =</span><br><span class="line">    (_liquidityTokenQty * baseTokenReserveQty) /</span><br><span class="line">        totalSupplyOfLiquidityTokens;</span><br><span class="line">uint256 quoteTokenQtyToReturn =</span><br><span class="line">    (_liquidityTokenQty * quoteTokenReserveQty) /</span><br><span class="line">        totalSupplyOfLiquidityTokens;</span><br><span class="line">_burn(msg.sender, _liquidityTokenQty);</span><br><span class="line">IERC20(baseToken).safeTransfer(_tokenRecipient, baseTokenQtyToReturn);</span><br><span class="line">IERC20(quoteToken).safeTransfer(_tokenRecipient, quoteTokenQtyToReturn);</span><br></pre></td></tr></table></figure>
+
+<p>可以看到池子储量代币量使用的 balanceOf(address(this)) 数据，用户移除流动性获得的代币为：用户的流动性 * 池子储量 &#x2F; 总的流动性。</p>
+<p>添加流动性时使用的 internalBalabnces 数据，而移除流动性时使用的 balanceOf(address(this)) 数据。</p>
+<p>因此添加流动性后，往池子内转入相应的代币，然后再移除流动性，此时计算的 quoteTokenReserveQty 则会变大，因此用户获得的代币也会相应变大。</p>
+<p>正常移除流动性所得：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">liquidity * Reserve / totalliquidity;</span><br></pre></td></tr></table></figure>
+
+<p>往池子内转入代币后再移除流动性所得：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">liquidity * (Reserve + Tansfer) / totalliquidity;</span><br></pre></td></tr></table></figure>
+
+<p>那么多获得的数量为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">liquidity * Tansfer / totalliquidity</span><br></pre></td></tr></table></figure>
+
+<p>再减去转入的代币后计算出一次添加&#x2F;移除流动性的获利：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">liquidity * Tansfer / totalliquidity - Transfer = （（liquidity / totalliquidity）-1）* Transfer</span><br></pre></td></tr></table></figure>
+
+<p>由于<code>liquidity / totalliquidity</code> 是肯定小于1的，因此如果只是添加&#x2F;移除流动性一次的话是无法获利的，但是我们可以通过多次的添加&#x2F;移除流动性操作来完成获利，因为池子没有方法来平衡 internalBalances 和 balancesOf(address(this))，转入池子的代币会让这两个变量一直存在差值。所以我们只要保证 <code>(liquidity / totalliquidity) * N &gt; 1</code> 即可获利，N 为添加&#x2F;移除流动性操作的次数。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>合约中添加流动性和移除流动性使用的数据源不同导致了这次的攻击。</p>
+
+      </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%A6%82%E8%BF%B0"><span class="toc-text">事件概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">事件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/L0s1/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/L0s1/">Copyright © 2022 Nian</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + ElasticSwap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90 + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F12%2F19%2FElasticSwap%25E6%2594%25BB%25E5%2587%25BB%25E4%25BA%258B%25E4%25BB%25B6%25E5%2588%2586%25E6%259E%2590%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/12/19/ElasticSwap%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
