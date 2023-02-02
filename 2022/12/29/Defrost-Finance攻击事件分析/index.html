@@ -11,7 +11,7 @@
   
   <title>
     
-      Tag 
+      Defrost Finance攻击事件分析 
       
       
       |
@@ -144,21 +144,144 @@
 
 
 
-  <!-- 标签页 url形式：https://yoursite/tags/ -->
-  <div class="container tag-index">
-    <div>
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security-Events-Learn/" rel="tag">Security Events Learn</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag">基础知识</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" rel="tag">安全事件学习</a><span class="tag-list-count">9</span></li></ul>
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Defrost Finance攻击事件分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2022-12-29 14:05:47
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" title="区块链">
+                    <b>#</b> 区块链
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%AE%89%E5%85%A8%E4%BA%8B%E4%BB%B6%E5%AD%A6%E4%B9%A0/" title="安全事件学习">
+                    <b>#</b> 安全事件学习
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="事件概述"><a href="#事件概述" class="headerlink" title="事件概述"></a>事件概述</h2><p>Defrost Finance 是位于 AVAX 链上的 Defi 项目，经过了 Certik 的审计，且被 AVAX 链官方推广过。2022年12月23日，Defrost Finance V2 遭到闪电贷攻击，损失17K的资金。紧接着在12月25日，Defrost Finance V1 又遭受恶意攻击，攻击者将预言机修改为恶意地址，铸造了1亿枚 H2O代币，同时恶意清算了大量的仓位，项目损失了12M的资金。短时间内遭受两次攻击，且第二次攻击属于特权攻击，加上受害者无法联系到项目方，很难让人不去相信一切都是项目方监守自盗。</p>
+<h2 id="事件分析"><a href="#事件分析" class="headerlink" title="事件分析"></a>事件分析</h2><p>我们只看23号的攻击，攻击者使用闪电贷针对的V2版本的攻击。</p>
+<p>攻击交易哈希：</p>
+<p><a target="_blank" rel="noopener" href="https://snowtrace.io/tx/0xc6fb8217e45870a93c25e2098f54f6e3b24674a3083c30664867de474bf0212d">https://snowtrace.io/tx/0xc6fb8217e45870a93c25e2098f54f6e3b24674a3083c30664867de474bf0212d</a></p>
+<p>首先攻击者调用 Defrost Finance V2 的 LendingSwitchUSDC 合约的 maxFlashLoan 方法以及 flashFee 方法，查看池子最多能贷出的 USDC 以及 贷出最大 USDC 需要的手续费，然后向攻击合约转入了手续费数量的 USDC：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212291437707.png" alt="image-20221229143718622"></p>
+<p>首先攻击者从 Trader Joe (AVAX链上的Uniswap) 的 WAVAX-USDC 池子中闪电贷出了 194263.946117个 USDC，然后在 Joecall 回调函数中调用 Defrost Finance V2 的 LendingSwitchUSDC 合约的 flashloan 方法，继续贷出 194263.946117个 USDC：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212291437643.png" alt="image-20221229143737610"></p>
+<p>接下来在二层回调 onFlashLoan 方法中调用  LendingSwitchUSDC 合约的 deposit 方法，存入 194263.946117个 USDC，并铸造了1844317.410414个 LSWUSDC。</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212291447318.png" alt="image-20221229144754273"></p>
+<p>然后向 LendingSwitchUSDC 合约转入194283.372511个 USDC，归还闪电贷，LendingSwitchUSDC 合约里会将其存入 AAVE，到这里 LendingSwitchUSDC 合约的 flashloan 方法结束。</p>
+<p>然后继续调用 LendingSwitchUSDC 合约的 redeem 方法，提取出 368503793484个 USDC，最后归还 Trander Joe 的闪电贷，共194866.164349个USDC：</p>
+<p><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202212291454114.png" alt="image-20221229145433071"></p>
+<p>到这里针对 V2 的闪电贷攻击流程就结束了。</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>针对 V2 的攻击异常点在于攻击者调用 LendingSwitchUSDC 合约的 flashLoan 方法，在回调函数中调用 deposit 方法，存入了194263.946117个 USDC，但是在 flashLoan 方法结束后调用 redeem 方法取出了368503. 793484个 USDC。</p>
+<p>查看 redeem 方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">function redeem(uint256 shares,address receiver,address owner) external returns (uint256) &#123;</span><br><span class="line">        uint256 _value = convertToAssets(shares);</span><br><span class="line">        _withdraw(_value,shares,receiver,owner);</span><br><span class="line">        emit Withdraw(msg.sender,receiver,_value,shares);</span><br><span class="line">        return _value;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要点在 _value 的计算上，查看 convertToAssets ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function convertToAssets(uint256 _shareNum) public view returns(uint256)&#123;</span><br><span class="line">        return _shareNum.mul(getTotalAssets())/totalSupply();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 getTotalAssets 方法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function getTotalAssets() internal virtual override(superSwitchErc20,superTokenInterface) view returns (uint256)&#123;</span><br><span class="line">        return getAvailableBalance().add(totalAssetAmount());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 getAvailableBalance 是当前 AAVE 包装代币的余额，而 totalAssetAmount 计算出来是一个固定的值，可以不用理会。</p>
+<p>即 _value &#x3D; amount * (getAvailableBalance  + totalAssetAmount ) &#x2F; totalSupply</p>
+<p>正常情况下 redeemAmount 会等于 depositAmount。</p>
+<p>查看合约的闪电贷方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">function flashLoan(</span><br><span class="line">        IERC3156FlashBorrower receiver,</span><br><span class="line">        address token,</span><br><span class="line">        uint256 amount,</span><br><span class="line">        bytes calldata data</span><br><span class="line">    ) external virtual returns (bool) &#123;</span><br><span class="line">        require(token == address(asset),&quot;flash borrow token Error!&quot;);</span><br><span class="line">        uint256 fee = flashFee(token, amount);</span><br><span class="line">        onWithdraw(address(receiver),amount);</span><br><span class="line">        require(</span><br><span class="line">            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,</span><br><span class="line">            &quot;invalid return value&quot;</span><br><span class="line">        );</span><br><span class="line">        onDeposit(address(receiver),amount + fee,0);</span><br><span class="line">        emit FlashLoan(msg.sender,address(receiver),token,amount);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到逻辑是先去 AAVE 提款给 receiver， 然后调用 receiver.onFlashLoan 方法，最后再将还款存入到 AAVE。</p>
+<p>攻击者在闪电贷的情况下调用 deposit 方法，取钱时 getAvailableBalance 为 0 ，闪电贷结束时，getAvailableBalance 的值为攻击者 deposit 的数量加上闪电贷还款存入 AAVE 的数量，和普通的 deposit 相比，</p>
+<p>getAvailableBalance 的值 多了 flashloanAmount + fee。因此攻击者 redeem 时能够获得更多的 USDC。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在 Defi 中使用 token.balanceOf(address(this)) 这个方法有一定的风险，需要谨慎对待，另外在重要方法中加入重入锁也能够增加安全性。在各类 Defi 项目层出不穷的情况下，判定项目是否有 rug pull 的风险十分重要。</p>
+
+      </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E6%A6%82%E8%BF%B0"><span class="toc-text">事件概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-text">事件分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+      
     </div>
   </div>
-  
 
   
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
 
   
-
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
   
 
-  
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
 
         
 <div class="footer">
@@ -419,12 +542,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + tags + '&url=' + https%3A%2F%2Fl0s1.github.io%2Ftags%2Findex.html + '" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Defrost%20Finance%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90 + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2022%2F12%2F29%2FDefrost-Finance%25E6%2594%25BB%25E5%2587%25BB%25E4%25BA%258B%25E4%25BB%25B6%25E5%2588%2586%25E6%259E%2590%2F + '" target="_blank" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/tags/index.html" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2022/12/29/Defrost-Finance%E6%94%BB%E5%87%BB%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90/" target="_blank" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         

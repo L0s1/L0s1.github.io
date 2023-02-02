@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="" />
+  <meta name="description" content="Blog" />
+  
+  
+  <title>
+    
+      可升级合约 
+      
+      
+      |
+    
+     Nian&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Nian</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">可升级合约</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2023-02-02 16:38:35
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" title="区块链">
+                    <b>#</b> 区块链
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="基础知识">
+                    <b>#</b> 基础知识
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>在以太坊上，合约部署后是无法修改其代码的。如果部署后发现代码有漏洞，或者想更新版本，想直接修改部署好的合约是不可能的。好在有一个操作码 delegatecall，借助这个操作码，我们可以曲线救国，实现可升级合约这一方案。下面我们讲述一下可升级合约的几种模式以及在使用可升级合约时的注意事项。</p>
+<h2 id="Delegatecall"><a href="#Delegatecall" class="headerlink" title="Delegatecall"></a>Delegatecall</h2><p><em>delegatecall</em> 操作码用于外部调用其他合约的方法，但是执行环境是在当前合约当中，调用者不会发生变化，且状态变量是存储在当前合约当中。因此我们可以利用这种特性，设计出最简单的可升级合约，即一个代理合约，实现了升级逻辑以及在 fallback 方法中实现 delegatecall 调用逻辑，一个逻辑合约，实现真正的项目的逻辑。<br><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202302021644522.png" alt="Pasted image 20230201115001"></p>
+<h2 id="Transparent-Proxies"><a href="#Transparent-Proxies" class="headerlink" title="Transparent Proxies"></a>Transparent Proxies</h2><p>上述实现了一个最为简单的可升级合约，但其实我们可以发现它存在了一些问题。<br>第一个问题是 <em>选择器冲突</em>，即我们在 proxy 合约会实现升级相关的逻辑，我们在 logic 合约会实现项目逻辑，当两者都实现了一个相同声明的函数，则会发生选择器冲突，当然不同也可能会发生冲突，只是概率较小。发生冲突时我们只能够调用 proxy 合约实现的函数，而无法调用 logic 合约实现的函数。<br>第二个问题是 <em>插槽冲突</em>，在 proxy 合约中存在升级逻辑，很明显这些升级相关的函数只能够由管理员来调用，因此 proxy 合约中需要有两个存储槽，一个用来存储管理员地址，一个用来存储 logic 合约地址，如果这些存储槽位置处理不当，则会和 logic 合约产生冲突，覆盖掉 logic 合约相同存储槽的状态变量，导致合约出现意料之外的情况。<br>为了解决选择器冲突这个问题，设计出了 Transparent proxies 模式，即透明代理模式。<br><em>透明代理模式</em> 会区分 proxy 合约特权账户和普通用户，在升级相关的逻辑处会判断是否为特权账户，是的话则调用 proxy 合约的升级逻辑，否则进入到 fallback 函数中；而在 fallback 函数中则会校验调用者是否为普通用户，是的话继续逻辑，否则会被 revert。也即该模式针对合约升级账户和普通用户进行了区分，解决了选择器冲突这个问题。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">modifier ifAdmin() &#123;</span><br><span class="line">        if (msg.sender == _getAdmin()) &#123;</span><br><span class="line">            _;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            _fallback();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">function changeAdmin(address newAdmin) external virtual ifAdmin &#123;</span><br><span class="line">        _changeAdmin(newAdmin);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">function upgradeTo(address newImplementation) external ifAdmin &#123;</span><br><span class="line">        _upgradeToAndCall(newImplementation, bytes(&quot;&quot;), false);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">function _beforeFallback() internal virtual override &#123;</span><br><span class="line">        require(msg.sender != _getAdmin(), &quot;TransparentUpgradeableProxy: admin cannot fallback to proxy target&quot;);</span><br><span class="line">        super._beforeFallback();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而针对插槽冲突这个问题，在 OpenZeppelin 实现的透明代理合约中，通过使用 <em>非结构化存储</em> 来解决这个问题。即 proxy 合约中的状态变量存储在特定位置的槽中，类似于 mapping，而不是存储在第零槽或者第一槽这种顺序存储，这样就不会跟 logic 合约的状态变量冲突。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"></span><br><span class="line">* @dev Storage slot with the address of the current implementation.</span><br><span class="line"></span><br><span class="line">* This is the keccak-256 hash of &quot;eip1967.proxy.implementation&quot; subtracted by 1, and is</span><br><span class="line"></span><br><span class="line">* validated in the constructor.</span><br><span class="line"></span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"></span><br><span class="line">* @dev Storage slot with the admin of the contract.</span><br><span class="line"></span><br><span class="line">* This is the keccak-256 hash of &quot;eip1967.proxy.admin&quot; subtracted by 1, and is</span><br><span class="line"></span><br><span class="line">* validated in the constructor.</span><br><span class="line"></span><br><span class="line">*/</span><br><span class="line"></span><br><span class="line">bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Universal-Upgradeable-Proxies"><a href="#Universal-Upgradeable-Proxies" class="headerlink" title="Universal Upgradeable Proxies"></a>Universal Upgradeable Proxies</h2><p>透明代理模式虽然解决了选择器冲突这一问题，但是缺点也非常明显，那就是每次调用都会去判断调用者的身份，会增加 gas 的消耗。另外一种常见的可升级合约的模式为 Universal upgradeable proxies，即通用可升级代理模式。<br><em>通用可升级代理模式</em> 与透明代理模式最大的区别在于合约升级的逻辑在逻辑合约中而不是在代理合约中，即 proxy 合约唯一的作用就是简单的通过 delegatecall 调用 logic 合约。因此使用 UUPS 模式的合约不会存在选择器冲突这个问题。<br><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202302021644269.png" alt="Pasted image 20230201114709"></p>
+<p>但 UUPS 模式也有其缺点。升级相关的逻辑在逻辑合约中，容易和功能逻辑混淆，权限分配上容易混乱。如果逻辑合约如果忘记初始化容易出现被恶意利用的问题。与 TPPS 模式相比，UUPS 模式的使用更具有挑战性。</p>
+<h2 id="Beacon-Pattern-Proxies"><a href="#Beacon-Pattern-Proxies" class="headerlink" title="Beacon Pattern Proxies"></a>Beacon Pattern Proxies</h2><p>有时候我们会遇到需要通过工厂合约部署很多相同合约的情况，如果这些合约也使用可升级合约，那么或许使用 Beacon pattern proxies 是一个好的方案。<br><em>信标代理模式</em> 满足了多个代理合约都使用一个相同的逻辑合约的场景。它在架构上比 TPPS 模式多出了一个 Beacon 合约，该合约存储了逻辑合约的地址，以及修改改地址的函数。然后代理合约每次需要从 Beacon 合约中取出逻辑合约的地址，然后对该地址进行 delegatecall 调用。<br><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202302021644004.png" alt="Pasted image 20230201115416"></p>
+<p>信标代理模式和透明代理模式相比，其不存在插槽冲突的问题。因为 Proxy 合约中无需存储 Logic 合约的地址，也不需要编写升级的逻辑，Proxy 合约只需要保存 Beacon 合约的地址，该地址不会变化，因此地址变量可以通过 immutable 修饰，并在初始化时赋值，不占用存储槽。当需要升级时只需要在 Beacon 合约中修改 Logic 合约的地址，即可实现多个代理合约同时升级。<br>一个简单的信标代理模式的可升级合约的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">contract Proxy &#123;</span><br><span class="line">    address immutable beacon;</span><br><span class="line"></span><br><span class="line">    fallback() external payable &#123;</span><br><span class="line">        address implementation = beacon.implementation();</span><br><span class="line">        return implementation.delegatecall.value(msg.value)(msg.data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Beacon is Ownable &#123;</span><br><span class="line">    address public implementation;</span><br><span class="line"></span><br><span class="line">    function upgrade(address newImplementation) public onlyOwner &#123;</span><br><span class="line">        implementation = newImplementation;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Diamonds-Multi-Facet-Proxy"><a href="#Diamonds-Multi-Facet-Proxy" class="headerlink" title="Diamonds, Multi-Facet Proxy"></a>Diamonds, Multi-Facet Proxy</h2><p>既然存在多个代理合约对一个逻辑合约的情况，那么也会存在一个代理合约对多个逻辑合约的情况。<br><em>钻石标准</em> 则可用于一个代理合约对多个逻辑合约的场景。当业务逻辑复杂的时候，代码的大小可能会超出以太坊规定的合约最大的限制(24K)，这个时候钻石标准可以解决这个问题。钻石标准将逻辑合约分为不同的切面，每一个或多个功能为一个切面，这样一个复杂的大小超过限制的逻辑合约被分成了很多个小的切面合约。例如可以将一个复杂的 Defi 分成预言机切面、权限切面、721切面等。其实现原理就是在代理合约中添加一个 mapping，由函数签名指向切面地址，这样每次调用 fallback 函数时都会根据传入的签名去寻找到切面的地址，然后执行对应的函数。<br><img src="https://niansblog.oss-cn-shanghai.aliyuncs.com/img/202302021645663.png" alt="Pasted image 20230201151645"><br> 钻石标准需要实现相应的对切面进行修改的函数，也即所谓的升级逻辑，当需要升级时，只需要修改对应的 mapping 中的值就行。<br> 由于所有的切面合约的数据都保存在 proxy 合约当中，因此对存储槽的分配十分重要。提案发起人提出了三种方案来解决插槽冲突，一种是利用非结构化存储，将切面的数据放在一个结构体中，然后将结构体存储在特定的插槽中；第二种是继承，即 proxy 和 logic 都继承相同的合约来达到存储槽一致；第三种方案是将结构体使用 internal 修饰，没太理解这样为什么没有冲突。<br> 一般的中小型的项目不大可能用上钻石标准，切钻石标准真正实现起来较为复杂，尤其是对于数据的存储，如何保证不会存在插槽冲突，又如何去判定不同的切面中的变量是否需要共享，需要将业务切割成多少个切面，等等这些问题都使得钻石标准的实现难度大大增加。</p>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p> 编写可升级合约虽然看起来十分简单，但是也需要注意以下几点，避免出现漏洞。</p>
+<h3 id="插槽冲突"><a href="#插槽冲突" class="headerlink" title="插槽冲突"></a>插槽冲突</h3><p> 可升级合约中最常见的漏洞。如果使用开源的库，如 OpenZeppelin，务必谨慎添加状态变量。自己编写的话更要警惕。使用非结构化存储可以很好地解决该问题。</p>
+<h3 id="选择器冲突"><a href="#选择器冲突" class="headerlink" title="选择器冲突"></a>选择器冲突</h3><p>  这个问题一般很少遇到，如果使用 OpenZeppelin 的透明代理或者通用代理不会存在该问题。如果是自己编写部署前检查一下函数的签名。</p>
+<h3 id="初始化问题"><a href="#初始化问题" class="headerlink" title="初始化问题"></a>初始化问题</h3><p>  可升级合约中逻辑合约无法使用构造函数进行初始化，因此逻辑合约需要编写一个初始化函数来进行初始化变量，且需要添加上相应的修饰器保证该函数只能够被调用一次。</p>
+<h3 id="升级账户私钥丢失"><a href="#升级账户私钥丢失" class="headerlink" title="升级账户私钥丢失"></a>升级账户私钥丢失</h3><p>  这是很多项目被攻击的原因，因为管理不当或者操作失误，导致了管理升级的特权账户私钥丢失了，攻击者直接将合约升级成恶意的合约，盗走资产。建议安全保管升级账户私钥，同时建议升级账户使用多签钱包方案。</p>
+<h3 id="UUPS-模式逻辑合约未初始化"><a href="#UUPS-模式逻辑合约未初始化" class="headerlink" title="UUPS 模式逻辑合约未初始化"></a>UUPS 模式逻辑合约未初始化</h3><p>  在 UUPS 模式中，升级的逻辑在逻辑合约中，因此带有 upgradeAndCall 这样的方法，往往需要特权账户才能够调用，但是很多项目方只是调用初始化方法初始化了代理合约，而没有初始化逻辑合约，攻击者调用逻辑合约的初始化方法，将自己变成逻辑合约的特权账户，然后调用 upgradeAndCall 方法，将逻辑合约升级并且调用恶意合约的方法，一般是进行 selfdestruct，这样逻辑合约就会被销毁。代理合约只是存储了逻辑合约的地址，而无法修改，所以相当于没办法进行任何操作，资金会全部锁死在代理合约中。 使用 OpenZeppelin 的 UUPS 合约不会存在该问题，因为其升级逻辑限定了只能由 Proxy 合约进行调用。</p>
+<h3 id="继承问题"><a href="#继承问题" class="headerlink" title="继承问题"></a>继承问题</h3><p>  由于可升级合约无法使用构造函数进行初始化，所以继承的也不能是通过构造函数初始化的合约，需要添加初始化函数，或者继承可升级的版本。如 OpenZeppelin 中 使用可升级合约就需要继承其 contract-upgrade 里面的合约。</p>
+<h3 id="权限控制不当"><a href="#权限控制不当" class="headerlink" title="权限控制不当"></a>权限控制不当</h3><p>  项目方如果没有做好权限分配，将升级特权账户和业务特权账户混淆，容易出现问题。如果是透明代理则无法调用业务的特权函数。在 UUPS 模式中更加容易混淆权限，因为升级逻辑和业务逻辑都在逻辑合约中，建议区分两种权限。<br>  第二种是合约编写时未做升级权限控制。如 Openzeppelin 的 UUPS 模式默认是任何人都可以去升级，我们需要去重写其 _authorizeUpgrade 函数，添加鉴权模块，使用时这一点很容易忘记。</p>
+<h3 id="升级合约随意修改状态变量"><a href="#升级合约随意修改状态变量" class="headerlink" title="升级合约随意修改状态变量"></a>升级合约随意修改状态变量</h3><p>  升级合约时添加了新的业务逻辑，这个时候需要添加或者修改之前的变量，一个稳妥的做法是在原来的状态变量后顺序新增，而不是插入或者删除原来的状态变量。粗暴的修改之前的状态变量可能会造成插槽冲突、覆盖，业务逻辑将会被破坏。</p>
+
+      </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Delegatecall"><span class="toc-text">Delegatecall</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transparent-Proxies"><span class="toc-text">Transparent Proxies</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Universal-Upgradeable-Proxies"><span class="toc-text">Universal Upgradeable Proxies</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Beacon-Pattern-Proxies"><span class="toc-text">Beacon Pattern Proxies</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Diamonds-Multi-Facet-Proxy"><span class="toc-text">Diamonds, Multi-Facet Proxy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E6%A7%BD%E5%86%B2%E7%AA%81"><span class="toc-text">插槽冲突</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E5%99%A8%E5%86%B2%E7%AA%81"><span class="toc-text">选择器冲突</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E9%97%AE%E9%A2%98"><span class="toc-text">初始化问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E8%B4%A6%E6%88%B7%E7%A7%81%E9%92%A5%E4%B8%A2%E5%A4%B1"><span class="toc-text">升级账户私钥丢失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UUPS-%E6%A8%A1%E5%BC%8F%E9%80%BB%E8%BE%91%E5%90%88%E7%BA%A6%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">UUPS 模式逻辑合约未初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%A7%E6%89%BF%E9%97%AE%E9%A2%98"><span class="toc-text">继承问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E4%B8%8D%E5%BD%93"><span class="toc-text">权限控制不当</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E5%90%88%E7%BA%A6%E9%9A%8F%E6%84%8F%E4%BF%AE%E6%94%B9%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F"><span class="toc-text">升级合约随意修改状态变量</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'IJAVQzWqEL88Izk9jaEc73Nw-gzGzoHsz',
+        appKey: 'jWyWW4kpO4zFNV2KqpRPiqfI',
+        placeholder: 'Welcome!',
+        avatar: 'retro',
+        lang: ''
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/L0s1/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/L0s1/">Copyright © 2023 Nian</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://hexo.io">Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E5%8F%AF%E5%8D%87%E7%BA%A7%E5%90%88%E7%BA%A6 + '&url=' + https%3A%2F%2Fl0s1.github.io%2F2023%2F02%2F02%2F%25E5%258F%25AF%25E5%258D%2587%25E7%25BA%25A7%25E5%2590%2588%25E7%25BA%25A6%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://l0s1.github.io/2023/02/02/%E5%8F%AF%E5%8D%87%E7%BA%A7%E5%90%88%E7%BA%A6/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
